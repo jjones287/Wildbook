@@ -155,9 +155,6 @@ import static org.junit.jupiter.api.Assertions.*;
     // Test Cases
     // =========================================================================
 
-    /**
-     * Test the search endpoint with various queries
-     */
     @Test @Order(2) void testPostSearch_Ok()
     throws Exception {
         System.out.println("\n--- Test: Search API with OpenSearch ---");
@@ -381,7 +378,7 @@ import static org.junit.jupiter.api.Assertions.*;
             org.ecocean.Encounter enc2 = new org.ecocean.Encounter();
             enc2.setGenus("Panthera");
             enc2.setSpecificEpithet("leo");
-            myShepherd.storeNewEncounter(enc2);
+            myShepherd.getPM().makePersistent(enc2);
 
             enc2.opensearchIndexDeep();
             asset2.opensearchIndexDeep();
@@ -404,7 +401,7 @@ import static org.junit.jupiter.api.Assertions.*;
             org.ecocean.MarkedIndividual ind2 = new org.ecocean.MarkedIndividual("Individual_2",
                 enc3);
             enc3.setIndividual(ind2);
-            myShepherd.storeNewMarkedIndividual(ind2);
+            myShepherd.getPM().makePersistent(enc3);
 
             ind1.opensearchIndexDeep();
             ind2.opensearchIndexDeep();
@@ -427,6 +424,7 @@ import static org.junit.jupiter.api.Assertions.*;
             ann3.setViewpoint("front");
             myShepherd.storeNewAnnotation(ann3);
             ann3.opensearchIndexDeep();
+            // Note: MediaAsset configuration may vary - adjust as needed
 
             myShepherd.commitDBTransaction();
             System.out.println("Test data initialized successfully");
