@@ -462,12 +462,10 @@ import static org.mockito.Mockito.when;
 
                 assertNotNull(actualRow, "Row " + rowIndex + " should not be null");
 
-                // Compare cell count
                 int actualCellCount = actualRow.getLastCellNum();
-                assertEquals(expectedRow.length, actualCellCount,
-                    "Row " + rowIndex + " should have " + expectedRow.length + " cells");
                 // Compare each cell
-                for (int cellIndex = 0; cellIndex < expectedRow.length; cellIndex++) {
+                for (int cellIndex = 0; cellIndex < Math.min(expectedRow.length, actualCellCount);
+                    cellIndex++) {
                     Cell actualCell = actualRow.getCell(cellIndex);
                     String expectedValue = expectedRow[cellIndex];
                     String actualValue = getCellValueAsString(actualCell);
@@ -502,6 +500,9 @@ import static org.mockito.Mockito.when;
                         }
                     }
                 }
+                // Compare cell count
+                assertEquals(expectedRow.length, actualCellCount,
+                    "Row " + rowIndex + " should have " + expectedRow.length + " cells");
             }
             System.out.println("Excel metadata validation passed - all cells match expected CSV");
         }
@@ -608,7 +609,8 @@ import static org.mockito.Mockito.when;
             "ZIP should contain Individual_2/ subdirectory");
 
         // Should NOT contain Unidentified_annotations (since unidentifiedEncounters: false)
-        assertFalse(zipEntries.stream().anyMatch(e -> e.contains(EncounterImageExportFile.UNIDENTIFIED_INDIVIDUAL)),
+        assertFalse(zipEntries.stream().anyMatch(e -> e.contains(
+            EncounterImageExportFile.UNIDENTIFIED_INDIVIDUAL)),
             "ZIP should NOT contain unidentified annotations (unidentifiedEncounters: false)");
 
         // Should contain actual image files with proper naming convention
@@ -733,6 +735,23 @@ import static org.mockito.Mockito.when;
                 "image-ok-0.jpg").toFile());
             MediaAsset asset3 = ((LocalAssetStore)localStore).create(assetsRoot.resolve(
                 "image-ok-0.jpg").toFile());
+
+            // Create keywords and add them to media assets
+            org.ecocean.Keyword refKeyword = new org.ecocean.Keyword("Reference");
+            org.ecocean.Keyword laboratoryKeyword = new org.ecocean.Keyword("Laboratory Study");
+            org.ecocean.Keyword fieldKeyword = new org.ecocean.Keyword("Field Study");
+            myShepherd.getPM().makePersistent(refKeyword);
+            myShepherd.getPM().makePersistent(laboratoryKeyword);
+            myShepherd.getPM().makePersistent(fieldKeyword);
+
+            // asset1 has Reference and Scientific keywords
+            asset1.addKeyword(refKeyword);
+            asset1.addKeyword(laboratoryKeyword);
+
+            // asset2 has only Field Study keyword
+            asset2.addKeyword(fieldKeyword);
+
+            // asset3 has no keywords (to test that case)
 
             // Create test encounters
             org.ecocean.Encounter enc1 = new org.ecocean.Encounter();
