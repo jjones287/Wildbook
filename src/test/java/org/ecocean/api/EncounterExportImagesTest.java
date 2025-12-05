@@ -529,6 +529,7 @@ import static org.mockito.Mockito.when;
                 .cookie("JSESSIONID", authenticationCookie)
                 .contentType(ContentType.JSON)
                 .body(requestBody)
+                .queryParam("includeMetadata", "true")
                 .when()
                 .post("/api/v3/encounters/export")
                 .then()
